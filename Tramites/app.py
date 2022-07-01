@@ -2,18 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import cv2
 from functools import wraps
 from flask.helpers import send_file
 from flask_mail import Connection, Mail, Message
 from flask import Flask, render_template, request, session, escape, redirect, url_for, flash
 import os
-import cv2
-from flask import Flask,render_template,request,redirect,url_for,make_response,jsonify
+from flask import Flask,request,redirect,url_for,make_response,jsonify
 
 
 app=Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@127.0.0.1/mydb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345@127.0.0.1/mydb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -27,6 +25,7 @@ class Curso(db.Model):
         self.idCurso=idCurso
         self.Cursonombre=Cursonombre
         self.Cursomodalidad=Cursomodalidad
+
 class Usuario(db.Model):
     idUsuario = db.Column(db.Integer, primary_key=True)
     UsuarioName =db.Column(db.String(45), nullable=False, unique=True)
@@ -45,8 +44,22 @@ class Usuario(db.Model):
         self.Usuariosede = Usuariosede
         self.Usuariocorreo = Usuariocorreo
         self.Curso_idCurso=Curso_idCurso
-                
 
+class tramitetipo(db.Model):
+    idTramitetipo=db.Column(db.Integer, primary_key=True)
+    Nombretipo=db.Column(db.String(45), nullable=False, unique=True)
+    def __init__(self, idTramitetipo, Nombretipo):
+        self.idTramitetipo=idTramitetipo
+        self.Nombretipo=Nombretipo
+
+class estadodeltramite(db.Model):
+    idEstadodeltramite=db.Column(db.Integer, primary_key=True)
+    Fecha=db.Column(db.DateTime, nullable=False, unique=True)
+    Asunto=db.Column(db.String(45), nullable=False, unique=True)
+    def __init__(self, idEstadodeltramite, Fecha, Asunto):
+        self.idEstadodeltramite=idEstadodeltramite
+        self.Fecha=Fecha                
+        self.Asunto=Asunto
 
 db.create_all()
 
@@ -64,7 +77,22 @@ class CursoSchema(ma.Schema):
 curso_schema = CursoSchema()
 curso_schemas = CursoSchema(many=True)
 
-@app.route('/create_curso',methods=['post'])
+class TramiteTipoSchema(ma.Schema):
+    class Meta:
+        fields = ("idTramitetipo", "Nombretipo")
+
+tramitetipo_schema = TramiteTipoSchema()
+tramitetipo_schemas = TramiteTipoSchema(many=True)
+
+class estadodeltramiteSchema(ma.Schema):
+    class Meta:
+        fields = ("idEstadodeltramite", "Fecha", "Asunto")
+
+estadodeltramite_schema = estadodeltramiteSchema()
+estadodeltramite_schemas = estadodeltramiteSchema(many=True)
+
+
+@app.route('/create_curso',methods=['POST'])
 def create_curso():
     print(request.json)
     idCurso=request.json["idCurso"]
@@ -93,6 +121,30 @@ def create_cliente():
     db.session.commit()
 
     return usuario_schema.jsonify(new_usuario)
+
+@app.route('/create_tramitetipo',methods=['POST'])
+def create_tramitetipo():
+    print(request.json)
+    idTramitetipo=request.json["idTramitetipo"]
+    Nombretipo =request.json["Nombretipo"]
+    new_tramitetipo= tramitetipo(idTramitetipo,Nombretipo)
+    db.session.add(new_tramitetipo)
+    db.session.commit()
+
+    return tramitetipo_schema.jsonify(new_tramitetipo)
+
+@app.route('/create_estadodeltramite',methods=['POST'])
+def create_estadodeltramite():
+    print(request.json)
+    idEstadodeltramite=request.json["idEstadodeltramite"]
+    Fecha =request.json["Fecha"]
+    Asunto =request.json["Asunto"]
+    new_estadodeltramite= estadodeltramite(idEstadodeltramite,Fecha,Asunto)
+    db.session.add(new_estadodeltramite)
+    db.session.commit()
+
+    return estadodeltramite_schema.jsonify(new_estadodeltramite)
+
 
 if __name__=="__main__":   
     app.run(port=5000, debug=True)

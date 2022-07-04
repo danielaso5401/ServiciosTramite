@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+<<<<<<< HEAD
 from functools import wraps
 from flask.helpers import send_file
 from flask_mail import Connection, Mail, Message
@@ -10,6 +11,9 @@ import os
 from flask import Flask,request,redirect,url_for,make_response,jsonify
 
 
+=======
+from flask import Flask,request,jsonify
+>>>>>>> d47e4dd4452b9a77e4836db85a804dc2f42b9c1b
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345@127.0.0.1/mydb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -104,6 +108,20 @@ def create_curso():
 
     return curso_schema.jsonify(new_curso)
 
+@app.route('/read_curso',methods=['get'])
+def read_curso():
+    all_curso = Curso.query.all()
+    result = curso_schemas.dump(all_curso)
+    return jsonify(result)
+
+@app.route('/delete_curso/<int:ide>', methods=['DELETE'])
+def delete_curso(ide):
+    deleteCurso=Curso.query.filter_by(idCurso=ide).one()
+    db.session.delete(deleteCurso)
+    db.session.commit()
+    return "eliminado correctamente"
+
+
 @app.route('/create_usuario', methods=['POST'])
 def create_cliente():
     print(request.json)
@@ -122,6 +140,7 @@ def create_cliente():
 
     return usuario_schema.jsonify(new_usuario)
 
+<<<<<<< HEAD
 @app.route('/create_tramitetipo',methods=['POST'])
 def create_tramitetipo():
     print(request.json)
@@ -144,6 +163,20 @@ def create_estadodeltramite():
     db.session.commit()
 
     return estadodeltramite_schema.jsonify(new_estadodeltramite)
+=======
+@app.route('/read_usuario',methods=['GET'])
+def read_curso():
+    all_curso = Curso.query.all()
+    result = curso_schemas.dump(all_curso)
+    return jsonify(result)
+
+@app.route('/delete_usuario/<ide:int>', methods=['POST'])
+def delete_usuario(ide):
+    deleteUsuario=Curso.query.filter_by(idUsuario=ide).one()
+    db.session.delete(deleteUsuario)
+    db.session.commit()
+    return "eliminado correctamente"
+>>>>>>> d47e4dd4452b9a77e4836db85a804dc2f42b9c1b
 
 
 if __name__=="__main__":   

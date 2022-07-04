@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-<<<<<<< HEAD
 from functools import wraps
 from flask.helpers import send_file
 from flask_mail import Connection, Mail, Message
@@ -11,9 +10,6 @@ import os
 from flask import Flask,request,redirect,url_for,make_response,jsonify
 
 
-=======
-from flask import Flask,request,jsonify
->>>>>>> d47e4dd4452b9a77e4836db85a804dc2f42b9c1b
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345@127.0.0.1/mydb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -65,6 +61,25 @@ class estadodeltramite(db.Model):
         self.Fecha=Fecha                
         self.Asunto=Asunto
 
+class tramite(db.Model):
+    idTramite = db.Column(db.Integer, primary_key=True)
+    Tramiteremitente =db.Column(db.String(45), nullable=False, unique=True)
+    Tramiteasunto =db.Column(db.String(45), nullable=False)
+    Tramitefecha = db.Column(db.DateTime, nullable=False)
+    Tramiteredestino = db.Column(db.Integer, nullable=False)
+    Usuario_idUsuario = db.Column(db.String(45), nullable=False)
+    Estadodeltramite_idEstadodeltramite = db.Column(db.String(45), nullable=False)
+    Tramitetipo_idTramitetipo = db.Column(db.String(45),nullable=False)
+    def __init__(self, idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha,Tramiteredestino,Usuario_idUsuario,Estadodeltramite_idEstadodeltramite,Tramitetipo_idTramitetipo):
+        self.idTramite = idTramite
+        self.Tramiteremitente = Tramiteremitente
+        self.Tramiteasunto = Tramiteasunto
+        self.Tramitefecha = Tramitefecha
+        self.Tramiteredestino = Tramiteredestino
+        self.Usuario_idUsuario = Usuario_idUsuario
+        self.Estadodeltramite_idEstadodeltramite = Estadodeltramite_idEstadodeltramite
+        self.Tramitetipo_idTramitetipo=Tramitetipo_idTramitetipo
+
 db.create_all()
 
 class UsuarioSchema(ma.Schema):
@@ -94,6 +109,13 @@ class estadodeltramiteSchema(ma.Schema):
 
 estadodeltramite_schema = estadodeltramiteSchema()
 estadodeltramite_schemas = estadodeltramiteSchema(many=True)
+
+class tramiteSchema(ma.Schema):
+    class Meta:
+        fields = ("idTramite","Tramiteremitente","Tramiteasunto","Tramitefecha","Tramiteredestino","Usuario_idUsuario","Estadodeltramite_idEstadodeltramite","Tramitetipo_idTramitetipo")
+
+tramite_schema = tramiteSchema()
+tramite_schemas = tramiteSchema(many=True)
 
 
 @app.route('/create_curso',methods=['POST'])
@@ -140,7 +162,12 @@ def create_cliente():
 
     return usuario_schema.jsonify(new_usuario)
 
-<<<<<<< HEAD
+@app.route('/read_usuario',methods=['GET'])
+def read_curso():
+    all_usuario = Usuario.query.all()
+    result = usuario_schemas.dump(all_usuario)
+    return jsonify(result)
+
 @app.route('/create_tramitetipo',methods=['POST'])
 def create_tramitetipo():
     print(request.json)
@@ -163,20 +190,30 @@ def create_estadodeltramite():
     db.session.commit()
 
     return estadodeltramite_schema.jsonify(new_estadodeltramite)
-=======
-@app.route('/read_usuario',methods=['GET'])
-def read_curso():
-    all_curso = Curso.query.all()
-    result = curso_schemas.dump(all_curso)
-    return jsonify(result)
 
-@app.route('/delete_usuario/<ide:int>', methods=['POST'])
-def delete_usuario(ide):
-    deleteUsuario=Curso.query.filter_by(idUsuario=ide).one()
-    db.session.delete(deleteUsuario)
+@app.route('/create_tramite', methods=['POST'])
+def create_tramite():
+    print(request.json)
+    idTramite=request.json["idTramite"]
+    Tramiteremitente =request.json["Tramiteremitente"]
+    Tramiteasunto =request.json["Tramiteasunto"]
+    Tramitefecha = request.json["Tramitefecha"]
+    Tramiteredestino = request.json["Tramiteredestino"]
+    #Usuario_idUsuario = request.json["Usuario_idUsuario"]
+    #Estadodeltramite_idEstadodeltramite = request.json["Estadodeltramite_idEstadodeltramite"]
+    #Tramitetipo_idTramitetipo = request.json["Tramitetipo_idTramitetipo"]
+    new_tramite = tramite(idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha, Tramiteredestino,1,1,1)
+
+    db.session.add(new_tramite)
     db.session.commit()
-    return "eliminado correctamente"
->>>>>>> d47e4dd4452b9a77e4836db85a804dc2f42b9c1b
+
+    return tramite_schema.jsonify(new_tramite)
+
+@app.route('/read_tramite',methods=['GET'])
+def read_tramite():
+    all_tramite = tramite.query.all()
+    result = tramite_schemas.dump(all_tramite)
+    return jsonify(result)
 
 
 if __name__=="__main__":   

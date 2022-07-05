@@ -99,18 +99,18 @@ def create_cliente():
 
     return usuario_schema.jsonify(new_usuario)
 
-@app.route('/read_usuario',methods=['GET'])
-def read_curso():
-    all_curso = Curso.query.all()
-    result = curso_schemas.dump(all_curso)
-    return jsonify(result)
+# @app.route('/read_usuario',methods=['GET'])
+# def read_curso():
+#     all_curso = Curso.query.all()
+#     result = curso_schemas.dump(all_curso)
+#     return jsonify(result)
 
-@app.route('/delete_usuario/<ide:int>', methods=['POST'])
-def delete_usuario(ide):
-    deleteUsuario=Curso.query.filter_by(idUsuario=ide).one()
-    db.session.delete(deleteUsuario)
-    db.session.commit()
-    return "eliminado correctamente"
+# @app.route('/delete_usuario/<ide:int>', methods=['POST'])
+# def delete_usuario(ide):
+#     deleteUsuario=Curso.query.filter_by(idUsuario=ide).one()
+#     db.session.delete(deleteUsuario)
+#     db.session.commit()
+#     return "eliminado correctamente"
 
 
 if __name__=="__main__":   

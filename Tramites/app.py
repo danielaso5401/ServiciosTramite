@@ -11,17 +11,17 @@ from flask import Flask,request,redirect,url_for,make_response,jsonify
 
 
 app=Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345@127.0.0.1/mydb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@127.0.0.1/mydb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-class Curso(db.Model):
+class curso(db.Model):
     idCurso=db.Column(db.Integer, primary_key=True)
     Cursonombre=db.Column(db.String(45), nullable=False, unique=True)
     Cursomodalidad=db.Column(db.String(45), nullable=False, unique=True)
-    def __init__(self, idCurso, Cursonombre,Cursomodalidad):
+    def _init_(self, idCurso, Cursonombre,Cursomodalidad):
         self.idCurso=idCurso
         self.Cursonombre=Cursonombre
         self.Cursomodalidad=Cursomodalidad
@@ -35,7 +35,7 @@ class Usuario(db.Model):
     Usuariosede = db.Column(db.String(45), nullable=False)
     Usuariocorreo = db.Column(db.String(45), nullable=False)
     Curso_idCurso = db.Column(db.String(45),nullable=False)
-    def __init__(self, idUsuario, UsuarioName, UsuarioApellidos, UsuarioContraseña,UsuarioDNI,Usuariosede,Usuariocorreo,Curso_idCurso):
+    def _init_(self, idUsuario, UsuarioName, UsuarioApellidos, UsuarioContraseña,UsuarioDNI,Usuariosede,Usuariocorreo,Curso_idCurso):
         self.idUsuario = idUsuario
         self.UsuarioName = UsuarioName
         self.UsuarioApellidos = UsuarioApellidos
@@ -48,7 +48,7 @@ class Usuario(db.Model):
 class tramitetipo(db.Model):
     idTramitetipo=db.Column(db.Integer, primary_key=True)
     Nombretipo=db.Column(db.String(45), nullable=False, unique=True)
-    def __init__(self, idTramitetipo, Nombretipo):
+    def _init_(self, idTramitetipo, Nombretipo):
         self.idTramitetipo=idTramitetipo
         self.Nombretipo=Nombretipo
 
@@ -56,7 +56,7 @@ class estadodeltramite(db.Model):
     idEstadodeltramite=db.Column(db.Integer, primary_key=True)
     Fecha=db.Column(db.DateTime, nullable=False, unique=True)
     Asunto=db.Column(db.String(45), nullable=False, unique=True)
-    def __init__(self, idEstadodeltramite, Fecha, Asunto):
+    def _init_(self, idEstadodeltramite, Fecha, Asunto):
         self.idEstadodeltramite=idEstadodeltramite
         self.Fecha=Fecha                
         self.Asunto=Asunto
@@ -70,7 +70,7 @@ class tramite(db.Model):
     Usuario_idUsuario = db.Column(db.String(45), nullable=False)
     Estadodeltramite_idEstadodeltramite = db.Column(db.String(45), nullable=False)
     Tramitetipo_idTramitetipo = db.Column(db.String(45),nullable=False)
-    def __init__(self, idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha,Tramiteredestino,Usuario_idUsuario,Estadodeltramite_idEstadodeltramite,Tramitetipo_idTramitetipo):
+    def _init_(self, idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha,Tramiteredestino,Usuario_idUsuario,Estadodeltramite_idEstadodeltramite,Tramitetipo_idTramitetipo):
         self.idTramite = idTramite
         self.Tramiteremitente = Tramiteremitente
         self.Tramiteasunto = Tramiteasunto
@@ -89,12 +89,12 @@ class UsuarioSchema(ma.Schema):
 usuario_schema = UsuarioSchema()
 usuario_schemas = UsuarioSchema(many=True)
 
-class CursoSchema(ma.Schema):
+class cursoSchema(ma.Schema):
     class Meta:
         fields = ("idCurso", "Cursonombre", "Cursomodalidad")
 
-curso_schema = CursoSchema()
-curso_schemas = CursoSchema(many=True)
+curso_schema = cursoSchema()
+curso_schemas = cursoSchema(many=True)
 
 class TramiteTipoSchema(ma.Schema):
     class Meta:
@@ -124,21 +124,21 @@ def create_curso():
     idCurso=request.json["idCurso"]
     Cursonombre =request.json["Cursonombre"]
     Cursomodalidad =request.json["Cursomodalidad"]
-    new_curso= Curso(idCurso,Cursonombre,Cursomodalidad)
+    new_curso= curso(idCurso,Cursonombre,Cursomodalidad)
     db.session.add(new_curso)
     db.session.commit()
 
     return curso_schema.jsonify(new_curso)
 
-@app.route('/read_curso',methods=['get'])
+@app.route('/read_curso',methods=['GET'])
 def read_curso():
-    all_curso = Curso.query.all()
+    all_curso = curso.query.all()
     result = curso_schemas.dump(all_curso)
     return jsonify(result)
 
 @app.route('/delete_curso/<int:ide>', methods=['DELETE'])
 def delete_curso(ide):
-    deleteCurso=Curso.query.filter_by(idCurso=ide).one()
+    deleteCurso=curso.query.filter_by(idCurso=ide).one()
     db.session.delete(deleteCurso)
     db.session.commit()
     return "eliminado correctamente"
@@ -162,20 +162,67 @@ def create_cliente():
 
     return usuario_schema.jsonify(new_usuario)
 
-# @app.route('/read_usuario',methods=['GET'])
-# def read_curso():
-#     all_curso = Curso.query.all()
-#     result = curso_schemas.dump(all_curso)
-#     return jsonify(result)
+@app.route('/read_usuario',methods=['GET'])
+def read_usuario():
+    all_usuario = Usuario.query.all()
+    result = usuario_schemas.dump(all_usuario)
+    return jsonify(result)
 
-# @app.route('/delete_usuario/<ide:int>', methods=['POST'])
-# def delete_usuario(ide):
-#     deleteUsuario=Curso.query.filter_by(idUsuario=ide).one()
-#     db.session.delete(deleteUsuario)
-#     db.session.commit()
-#     return "eliminado correctamente"
+@app.route('/delete_usuario/<int:ide>', methods=['DELETE'])
+def delete_usuario(ide):
+    delete_usuario=Usuario.query.filter_by(idUsuario=ide).one()
+    db.session.delete(delete_usuario)
+    db.session.commit()
+    return "eliminado correctamente"
+
+@app.route('/create_tramitetipo',methods=['POST'])
+def create_tramitetipo():
+    print(request.json)
+    idTramitetipo=request.json["idTramitetipo"]
+    Nombretipo =request.json["Nombretipo"]
+    new_tramitetipo= tramitetipo(idTramitetipo,Nombretipo)
+    db.session.add(new_tramitetipo)
+    db.session.commit()
+
+    return tramitetipo_schema.jsonify(new_tramitetipo)
+
+@app.route('/read_tramitetipo',methods=['GET'])
+def read_tramitetipo():
+    all_tramitetipo = tramitetipo.query.all()
+    result = tramitetipo_schemas.dump(all_tramitetipo)
+    return jsonify(result)
+
+@app.route('/delete_tramitetipo/<int:ide>', methods=['DELETE'])
+def delete_tramitetipo(ide):
+    delete_tramitetipo=tramitetipo.query.filter_by(idTramitetipo=ide).one()
+    db.session.delete(delete_tramitetipo)
+    db.session.commit()
+    return "eliminado correctamente"
+
+@app.route('/create_estadodeltramite',methods=['POST'])
+def create_estadodeltramite():
+    print(request.json)
+    idEstadodeltramite=request.json["idEstadodeltramite"]
+    Fecha =request.json["Fecha"]
+    Asunto =request.json["Asunto"]
+    new_estadodeltramite= estadodeltramite(idEstadodeltramite,Fecha,Asunto)
+    db.session.add(new_estadodeltramite)
+    db.session.commit()
 
     return estadodeltramite_schema.jsonify(new_estadodeltramite)
+
+@app.route('/read_estadodeltramite',methods=['GET'])
+def read_estadodeltramite():
+    all_estadodeltramite = estadodeltramite.query.all()
+    result = estadodeltramite_schemas.dump(all_estadodeltramite)
+    return jsonify(result)
+
+@app.route('/delete_estadodeltramite/<int:ide>', methods=['DELETE'])
+def delete_estadodeltramite(ide):
+    delete_tramite=tramite.query.filter_by(idTramite=ide).one()
+    db.session.delete(delete_tramite)
+    db.session.commit()
+    return "eliminado correctamente"
 
 @app.route('/create_tramite', methods=['POST'])
 def create_tramite():
@@ -201,6 +248,14 @@ def read_tramite():
     result = tramite_schemas.dump(all_tramite)
     return jsonify(result)
 
-print ("Holis")
+@app.route('/delete_tramite/<int:ide>', methods=['DELETE'])
+def delete_tramite(ide):
+    delete_tramite=tramite.query.filter_by(idTramite=ide).one()
+    db.session.delete(delete_tramite)
+    db.session.commit()
+    return "eliminado correctamente"
+
+
+#print ("Holis")
 if __name__=="__main__":   
     app.run(port=5000, debug=True)

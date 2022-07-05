@@ -215,6 +215,6 @@ def read_tramite():
     result = tramite_schemas.dump(all_tramite)
     return jsonify(result)
 
-
+print ("Holis")
 if __name__=="__main__":   
     app.run(port=5000, debug=True)

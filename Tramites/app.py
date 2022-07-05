@@ -84,7 +84,7 @@ db.create_all()
 
 class UsuarioSchema(ma.Schema):
     class Meta:
-        fields = ("idCurso", "UsuarioName", "UsuarioApellidos", "UsuarioContraseña","UsuarioDNI","Usuariosede","Usuariocorreo","Curso_idCurso")
+        fields = ("idUsuario", "UsuarioName", "UsuarioApellidos", "UsuarioContraseña","UsuarioDNI","Usuariosede","Usuariocorreo","Curso_idCurso")
 
 usuario_schema = UsuarioSchema()
 usuario_schemas = UsuarioSchema(many=True)
@@ -162,7 +162,6 @@ def create_cliente():
 
     return usuario_schema.jsonify(new_usuario)
 
-<<<<<<< HEAD
 # @app.route('/read_usuario',methods=['GET'])
 # def read_curso():
 #     all_curso = Curso.query.all()
@@ -175,34 +174,6 @@ def create_cliente():
 #     db.session.delete(deleteUsuario)
 #     db.session.commit()
 #     return "eliminado correctamente"
-=======
-@app.route('/read_usuario',methods=['GET'])
-def read_curso():
-    all_usuario = Usuario.query.all()
-    result = usuario_schemas.dump(all_usuario)
-    return jsonify(result)
-
-@app.route('/create_tramitetipo',methods=['POST'])
-def create_tramitetipo():
-    print(request.json)
-    idTramitetipo=request.json["idTramitetipo"]
-    Nombretipo =request.json["Nombretipo"]
-    new_tramitetipo= tramitetipo(idTramitetipo,Nombretipo)
-    db.session.add(new_tramitetipo)
-    db.session.commit()
-
-    return tramitetipo_schema.jsonify(new_tramitetipo)
-
-@app.route('/create_estadodeltramite',methods=['POST'])
-def create_estadodeltramite():
-    print(request.json)
-    idEstadodeltramite=request.json["idEstadodeltramite"]
-    Fecha =request.json["Fecha"]
-    Asunto =request.json["Asunto"]
-    new_estadodeltramite= estadodeltramite(idEstadodeltramite,Fecha,Asunto)
-    db.session.add(new_estadodeltramite)
-    db.session.commit()
->>>>>>> main
 
     return estadodeltramite_schema.jsonify(new_estadodeltramite)
 

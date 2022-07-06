@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <title>Tramites</title>
+</head>
+<body>
+    <h1>HOLAS</h1>
+    <div class="wrapper">
+        <table id="myTable" class="datatable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Destino</th>
+                    <th>Asunto</th>
+                    <th>Opciones</th>
+                </tr>
+                <tbody>
+                    {% for p in read_tramite %}
+                        <tr >
+                            
+                            <td>{{ p['idTramite'] }}</td>
+                            <td class="name" value="{{ p['Tramiteremitente'] }}" contenteditable='true'>{{ p['Tramiteremitente'] }}</td>
+                            <td  class="fecha" value="{{ p['Tramitefecha'] }}" contenteditable='true'>{{ p['Tramitefecha'] }}</td>
+                            <td class="destino" value="{{ p['Tramiteredestino'] }}" contenteditable='true'>{{ p['Tramiteredestino'] }}</td>
+                            <td class="asunto" value="{{ p['Tramiteasunto'] }}" contenteditable='true'>{{ p['Tramiteasunto'] }}</td>
+                            <td><button class="delete" name="delete" value="{{ p['idTramite'] }}">Delete</button>
+                            <button class="update" value="{{ p['idTramite'] }}">Update</button></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </thead>
+        </table>
+        <form class="form">
+            <label for="idTramite">ID</label>
+            <input type="text" id="idTramite" name="fname">
+    
+            <label for="Tramiteremitente">Nombre:</label>
+            <input type="text" id="Tramiteremitente" name="lname">
+            
+            <label for="Tramitefecha">Fecha:</label>
+            <input type="date" id="Tramitefecha" name="lname">
+
+            <label for="Tramiteasunto">Destion:</label>
+            <input type="text" id="Tramiteasunto" name="lname">
+    
+            
+            <label for="Tramiteredestino">Asunto:</label>
+            <input type="text" id="Tramiteredestino" name="lname">
+    
+          </form>
+        <button class="create" id="create" >Create</button>
+    </div>
+</body>
+</html>

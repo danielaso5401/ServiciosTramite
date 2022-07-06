@@ -1,17 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from functools import wraps
-from flask.helpers import send_file
-from flask_mail import Connection, Mail, Message
-from flask import Flask, render_template, request, session, escape, redirect, url_for, flash
-import os
-from flask import Flask,request,redirect,url_for,make_response,jsonify
+from flask import Flask, render_template, request
+from flask import Flask,request, jsonify
 
 
 app=Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@127.0.0.1/mydb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345@127.0.0.1/mydb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -21,7 +17,7 @@ class curso(db.Model):
     idCurso=db.Column(db.Integer, primary_key=True)
     Cursonombre=db.Column(db.String(45), nullable=False, unique=True)
     Cursomodalidad=db.Column(db.String(45), nullable=False, unique=True)
-    def _init_(self, idCurso, Cursonombre,Cursomodalidad):
+    def __init__(self, idCurso, Cursonombre,Cursomodalidad):
         self.idCurso=idCurso
         self.Cursonombre=Cursonombre
         self.Cursomodalidad=Cursomodalidad
@@ -35,7 +31,7 @@ class Usuario(db.Model):
     Usuariosede = db.Column(db.String(45), nullable=False)
     Usuariocorreo = db.Column(db.String(45), nullable=False)
     Curso_idCurso = db.Column(db.String(45),nullable=False)
-    def _init_(self, idUsuario, UsuarioName, UsuarioApellidos, UsuarioContraseña,UsuarioDNI,Usuariosede,Usuariocorreo,Curso_idCurso):
+    def __init__(self, idUsuario, UsuarioName, UsuarioApellidos, UsuarioContraseña,UsuarioDNI,Usuariosede,Usuariocorreo,Curso_idCurso):
         self.idUsuario = idUsuario
         self.UsuarioName = UsuarioName
         self.UsuarioApellidos = UsuarioApellidos
@@ -48,7 +44,7 @@ class Usuario(db.Model):
 class tramitetipo(db.Model):
     idTramitetipo=db.Column(db.Integer, primary_key=True)
     Nombretipo=db.Column(db.String(45), nullable=False, unique=True)
-    def _init_(self, idTramitetipo, Nombretipo):
+    def __init__(self, idTramitetipo, Nombretipo):
         self.idTramitetipo=idTramitetipo
         self.Nombretipo=Nombretipo
 
@@ -56,7 +52,7 @@ class estadodeltramite(db.Model):
     idEstadodeltramite=db.Column(db.Integer, primary_key=True)
     Fecha=db.Column(db.DateTime, nullable=False, unique=True)
     Asunto=db.Column(db.String(45), nullable=False, unique=True)
-    def _init_(self, idEstadodeltramite, Fecha, Asunto):
+    def __init__(self, idEstadodeltramite, Fecha, Asunto):
         self.idEstadodeltramite=idEstadodeltramite
         self.Fecha=Fecha                
         self.Asunto=Asunto
@@ -70,7 +66,7 @@ class tramite(db.Model):
     Usuario_idUsuario = db.Column(db.String(45), nullable=False)
     Estadodeltramite_idEstadodeltramite = db.Column(db.String(45), nullable=False)
     Tramitetipo_idTramitetipo = db.Column(db.String(45),nullable=False)
-    def _init_(self, idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha,Tramiteredestino,Usuario_idUsuario,Estadodeltramite_idEstadodeltramite,Tramitetipo_idTramitetipo):
+    def __init__(self, idTramite, Tramiteremitente, Tramiteasunto, Tramitefecha,Tramiteredestino,Usuario_idUsuario,Estadodeltramite_idEstadodeltramite,Tramitetipo_idTramitetipo):
         self.idTramite = idTramite
         self.Tramiteremitente = Tramiteremitente
         self.Tramiteasunto = Tramiteasunto
@@ -168,6 +164,19 @@ def read_usuario():
     result = usuario_schemas.dump(all_usuario)
     return jsonify(result)
 
+@app.route('/read_usuario_es',methods=['POST'])
+def read_usuario_es():
+    name=request.form["user_name"]
+    password=request.form["password"]
+    try:
+        only_usuario = Usuario.query.filter_by(UsuarioName=name,UsuarioContraseña=password).one()
+    except:
+        return ("Usuario o contraseña incorrecto")
+    result = usuario_schema.dump(only_usuario)
+    read_tramite=read_tramite2()
+    return render_template('tramites.html', read_tramite=read_tramite)
+        
+
 @app.route('/delete_usuario/<int:ide>', methods=['DELETE'])
 def delete_usuario(ide):
     delete_usuario=Usuario.query.filter_by(idUsuario=ide).one()
@@ -183,7 +192,6 @@ def create_tramitetipo():
     new_tramitetipo= tramitetipo(idTramitetipo,Nombretipo)
     db.session.add(new_tramitetipo)
     db.session.commit()
-
     return tramitetipo_schema.jsonify(new_tramitetipo)
 
 @app.route('/read_tramitetipo',methods=['GET'])
@@ -242,19 +250,29 @@ def create_tramite():
 
     return tramite_schema.jsonify(new_tramite)
 
+def read_tramite2():
+    all_tramite = tramite.query.all()
+    result = tramite_schemas.dump(all_tramite)
+    return result
+
 @app.route('/read_tramite',methods=['GET'])
 def read_tramite():
     all_tramite = tramite.query.all()
     result = tramite_schemas.dump(all_tramite)
     return jsonify(result)
 
-@app.route('/delete_tramite/<int:ide>', methods=['DELETE'])
+@app.route('/delete_tramite/<int:ide>', methods=['POST'])
 def delete_tramite(ide):
     delete_tramite=tramite.query.filter_by(idTramite=ide).one()
     db.session.delete(delete_tramite)
     db.session.commit()
     return "eliminado correctamente"
 
+
+
+@app.route('/')
+def home() :
+   return render_template('login.html')
 
 #print ("Holis")
 if __name__=="__main__":   

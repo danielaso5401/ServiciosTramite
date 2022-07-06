@@ -1,13 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from functools import wraps
-from flask.helpers import send_file
-from flask_mail import Connection, Mail, Message
-from flask import Flask, render_template, request, session, escape, redirect, url_for, flash
-import os
-from flask import Flask,request,redirect,url_for,make_response,jsonify
+from flask import Flask, render_template, request
+from flask import Flask,request, jsonify
 
 
 app=Flask(__name__)
@@ -168,6 +164,19 @@ def read_usuario():
     result = usuario_schemas.dump(all_usuario)
     return jsonify(result)
 
+@app.route('/read_usuario_es',methods=['POST'])
+def read_usuario_es():
+    name=request.form["user_name"]
+    password=request.form["password"]
+    try:
+        only_usuario = Usuario.query.filter_by(UsuarioName=name,UsuarioContraseña=password).one()
+    except:
+        return ("Usuario o contraseña incorrecto")
+    result = usuario_schema.dump(only_usuario)
+    read_tramite=read_tramite2()
+    return render_template('tramites.html', read_tramite=read_tramite)
+        
+
 @app.route('/delete_usuario/<int:ide>', methods=['DELETE'])
 def delete_usuario(ide):
     delete_usuario=Usuario.query.filter_by(idUsuario=ide).one()
@@ -183,7 +192,6 @@ def create_tramitetipo():
     new_tramitetipo= tramitetipo(idTramitetipo,Nombretipo)
     db.session.add(new_tramitetipo)
     db.session.commit()
-
     return tramitetipo_schema.jsonify(new_tramitetipo)
 
 @app.route('/read_tramitetipo',methods=['GET'])
@@ -242,13 +250,18 @@ def create_tramite():
 
     return tramite_schema.jsonify(new_tramite)
 
+def read_tramite2():
+    all_tramite = tramite.query.all()
+    result = tramite_schemas.dump(all_tramite)
+    return result
+
 @app.route('/read_tramite',methods=['GET'])
 def read_tramite():
     all_tramite = tramite.query.all()
     result = tramite_schemas.dump(all_tramite)
     return jsonify(result)
 
-@app.route('/delete_tramite/<int:ide>', methods=['DELETE'])
+@app.route('/delete_tramite/<int:ide>', methods=['POST'])
 def delete_tramite(ide):
     delete_tramite=tramite.query.filter_by(idTramite=ide).one()
     db.session.delete(delete_tramite)
@@ -256,6 +269,11 @@ def delete_tramite(ide):
     return "eliminado correctamente"
 
 
-print ("Holis")
+
+@app.route('/')
+def home() :
+   return render_template('login.html')
+
+#print ("Holis")
 if __name__=="__main__":   
     app.run(port=5000, debug=True)

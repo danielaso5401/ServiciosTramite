@@ -51,8 +51,8 @@ $(function()
             data:JSON.stringify({
                 "name":col2,
                 "fecha":col3,
-                "dni":col4,
-                "email":col5
+                "destino":col4,
+                "asunto":col5
             }),
             contentType: "application/json; charset=utf-8",
             traditional: true,

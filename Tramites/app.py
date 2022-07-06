@@ -268,6 +268,21 @@ def delete_tramite(ide):
     db.session.commit()
     return "eliminado correctamente"
 
+@app.route('/update_tramite/<ide>', methods=["POST"])
+def update_tramite(ide):
+    name=request.json["name"]
+    fecha=request.json["fecha"]
+    destino=request.json["destino"]
+    asunto=request.json["asunto"]
+
+    tramite.query.filter_by(idTramite=ide).update(dict(
+        Tramiteremitente=name,
+        Tramitefecha=fecha,
+        Tramiteredestino=destino,
+        Tramiteasunto=asunto
+    ))
+    db.session.commit()
+    return "actualizacion correcta"
 
 
 @app.route('/')
